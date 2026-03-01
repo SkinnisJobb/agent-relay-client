@@ -87,17 +87,17 @@ describe("AgentRelayClient", () => {
   });
 
   describe("sendMessage", () => {
-    it("sends message to channel", async () => {
-      const msg = { id: "msg_1", content: { text: "Hello" } };
+    it("sends message to project-scoped channel", async () => {
+      const msg = { id: "msg_1", content: "Hello" };
       vi.stubGlobal("fetch", mockFetch(200, { data: msg }));
 
-      const result = await client.sendMessage("ch_1", {
-        content: { text: "Hello" },
+      const result = await client.sendMessage("proj_1", "ch_1", {
+        content: "Hello",
       });
 
       expect(result).toEqual(msg);
       expect(fetch).toHaveBeenCalledWith(
-        `${BASE_URL}/api/v1/channels/ch_1/messages`,
+        `${BASE_URL}/api/v1/projects/proj_1/channels/ch_1/messages`,
         expect.objectContaining({ method: "POST" }),
       );
     });
@@ -107,10 +107,10 @@ describe("AgentRelayClient", () => {
     it("appends query params when provided", async () => {
       vi.stubGlobal("fetch", mockFetch(200, { data: [] }));
 
-      await client.getMessages("ch_1", { limit: 10, before: "msg_5" });
+      await client.getMessages("proj_1", "ch_1", { limit: 10, before: "msg_5" });
 
       expect(fetch).toHaveBeenCalledWith(
-        `${BASE_URL}/api/v1/channels/ch_1/messages?limit=10&before=msg_5`,
+        `${BASE_URL}/api/v1/projects/proj_1/channels/ch_1/messages?limit=10&before=msg_5`,
         expect.anything(),
       );
     });
@@ -118,11 +118,28 @@ describe("AgentRelayClient", () => {
     it("omits query string when no options", async () => {
       vi.stubGlobal("fetch", mockFetch(200, { data: [] }));
 
-      await client.getMessages("ch_1");
+      await client.getMessages("proj_1", "ch_1");
 
       expect(fetch).toHaveBeenCalledWith(
-        `${BASE_URL}/api/v1/channels/ch_1/messages`,
+        `${BASE_URL}/api/v1/projects/proj_1/channels/ch_1/messages`,
         expect.anything(),
+      );
+    });
+  });
+
+  describe("joinProject", () => {
+    it("sends token in body to /projects/join", async () => {
+      const result = { projectId: "proj_1", membership: {} };
+      vi.stubGlobal("fetch", mockFetch(200, { data: result }));
+
+      await client.joinProject("my-invite-token");
+
+      expect(fetch).toHaveBeenCalledWith(
+        `${BASE_URL}/api/v1/projects/join`,
+        expect.objectContaining({
+          method: "POST",
+          body: JSON.stringify({ token: "my-invite-token" }),
+        }),
       );
     });
   });

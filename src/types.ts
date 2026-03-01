@@ -61,39 +61,49 @@ export interface CreateProjectInput {
 
 // --- Channels ---
 
+export type ChannelType = "general" | "direct" | "broadcast";
+
 export interface Channel {
   id: string;
   projectId: string;
   name: string;
-  type: string;
+  type: ChannelType;
   description: string | null;
   createdAt: string;
 }
 
 export interface CreateChannelInput {
   name: string;
-  type?: string;
+  type?: ChannelType;
   description?: string;
 }
 
 // --- Messages ---
 
+export type MessageType = "instruction" | "context" | "query" | "response" | "memory-snapshot";
+export type MessagePriority = "low" | "normal" | "high" | "urgent";
+
 export interface Message {
   id: string;
   channelId: string;
-  senderId: string;
-  type: string;
-  priority: string;
-  content: Record<string, unknown>;
-  parentId: string | null;
+  fromAgentId: string;
+  targetAgentId: string | null;
+  type: MessageType;
+  priority: MessagePriority;
+  content: string;
+  metadata: Record<string, unknown>;
+  replyToId: string | null;
+  expiresAt: string | null;
   createdAt: string;
 }
 
 export interface SendMessageInput {
-  type?: string;
-  priority?: string;
-  content: Record<string, unknown>;
-  parentId?: string;
+  type?: MessageType;
+  priority?: MessagePriority;
+  content: string;
+  targetAgentId?: string;
+  replyToId?: string;
+  metadata?: Record<string, unknown>;
 }
 
 export interface GetMessagesOptions {

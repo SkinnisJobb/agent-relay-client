@@ -139,11 +139,19 @@ export class AgentRelayClient {
 
   // --- Messages ---
 
-  sendMessage(channelId: string, input: SendMessageInput): Promise<Message> {
-    return this.post(`/api/v1/channels/${channelId}/messages`, input);
+  sendMessage(
+    projectId: string,
+    channelId: string,
+    input: SendMessageInput,
+  ): Promise<Message> {
+    return this.post(
+      `/api/v1/projects/${projectId}/channels/${channelId}/messages`,
+      input,
+    );
   }
 
   getMessages(
+    projectId: string,
     channelId: string,
     options: GetMessagesOptions = {},
   ): Promise<Message[]> {
@@ -153,7 +161,7 @@ export class AgentRelayClient {
     if (options.after) params.set("after", options.after);
     const qs = params.toString();
     return this.get(
-      `/api/v1/channels/${channelId}/messages${qs ? `?${qs}` : ""}`,
+      `/api/v1/projects/${projectId}/channels/${channelId}/messages${qs ? `?${qs}` : ""}`,
     );
   }
 
@@ -179,8 +187,8 @@ export class AgentRelayClient {
     return this.post(`/api/v1/projects/${projectId}/invites`, input);
   }
 
-  acceptInvite(token: string): Promise<{ projectId: string; role: string }> {
-    return this.post(`/api/v1/invites/${token}/accept`);
+  joinProject(token: string): Promise<{ projectId: string; membership: unknown }> {
+    return this.post("/api/v1/projects/join", { token });
   }
 
   // --- Ollama proxy ---

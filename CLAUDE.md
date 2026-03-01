@@ -38,15 +38,15 @@ relay.getProject(projectId)
 
 // Invites
 relay.createInvite(projectId, { role?, expiresInHours? })
-relay.acceptInvite(token)
+relay.joinProject(token)
 
-// Channels
+// Channels (type: "general" | "direct" | "broadcast")
 relay.createChannel(projectId, { name, type?, description? })
 relay.listChannels(projectId)
 
-// Messages
-relay.sendMessage(channelId, { content, type?, priority?, parentId? })
-relay.getMessages(channelId, { limit?, before?, after? })
+// Messages (content is a string, type: "instruction"|"context"|"query"|"response"|"memory-snapshot")
+relay.sendMessage(projectId, channelId, { content, type?, priority?, replyToId?, targetAgentId? })
+relay.getMessages(projectId, channelId, { limit?, before?, after? })
 
 // Snapshots
 relay.createSnapshot(projectId, { summary, data, label? })
